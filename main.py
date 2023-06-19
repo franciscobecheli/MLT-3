@@ -3,18 +3,14 @@ import socket
 import matplotlib.pyplot as plt
 
 # Configurações de rede
-HOST = '192.168.0.3'  # Endereço IP do outro computador
+HOST = '192.168.0.3'  # Endereço IP do computador servidor
 PORT = 12345       # Porta para a conexão
 
 # Cria um objeto de socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Define o endereço IP e a porta para o socket
-host = '192.168.0.3'  # Substitua pelo IP do servidor
-port = 12345  # Escolha uma porta disponível
-
 # Associa o socket ao endereço IP e à porta
-server_socket.bind((host, port))
+server_socket.bind((HOST, PORT))
 
 # Coloca o socket em modo de escuta
 server_socket.listen(1)
@@ -28,35 +24,30 @@ print('Conexão estabelecida de:', addr)
 
 # Função para aplicar o algoritmo MLT-3
 def mlt3_encode(data):
-    encrypted_string = ""
-    previous_bit = "1"
+    tuple_data = tuple(char for char in data)
+    # Função pra codificar o sinal, de acordo com o algoritmo de código de linha MLT-3
+    states = ['+', '0', '-', '0']
+    sinal = []
 
-    for bit in data:
-        if bit == "0":
-            encrypted_string += previous_bit
-        else:
-            encrypted_string += "0" if previous_bit == "1" else "1"
+    index = 3
+    i = 0
 
-        previous_bit = encrypted_string[-1]
+    for i in range(0, len(tuple_data)):
+        if tuple_data[i] == '1':
+            index = (index + 1) % 4
+        # print(states[index])
+        sinal.append(states[index])
 
-    return encrypted_string
+    sinal = ''.join(sinal)
+    return sinal
 
-# Função para converter para binário
+# Função para converter ascii para binário
 def to_binary(ascii):
     binary = ""
     for valor in ascii:
         binary += bin(valor)[2:].zfill(8)
     return binary
 
-# Função para aplicar o princípio do algoritmo de codificação de linha
-def line_encoding(data):
-    encoded_data = []
-
-    for bit in data:
-        encoded_data.append(bit)
-        encoded_data.append('0')  # Insere um bit zero após cada bit
-
-    return ''.join(encoded_data)
 
 # Função para enviar os dados pelo socket
 def send_data(data):
@@ -71,23 +62,22 @@ def create_graph(data):
     plt.title('Sinal codificado')
     plt.xlabel('Tempo')
     plt.ylabel('Estado')
-    plt.show()
+    plt.show(block=False)
 
 # Função chamada ao clicar no botão
 def send_text():
     text = entry.get()  # Obtém o texto digitado
 
+    caeser_text = caser_encrypt(text, 3)
+
     # Transforma em ascii estendido
-    ascii_text = ascii_encode(text)
+    ascii_text = ascii_encode(caeser_text)
 
     # Converte para binário
     binary_data = to_binary(ascii_text)
 
-    # Aplica o algoritmo de codificação de linha
-    line_encoded_data = line_encoding(binary_data)
-
     # Aplica a criptografia MLT-3
-    mlt3_data = mlt3_encode(line_encoded_data)
+    mlt3_data = mlt3_encode(binary_data)
 
     # Cria o gráfico
     create_graph(mlt3_data)
@@ -101,6 +91,21 @@ def ascii_encode(string):
         ascii.append(ord(char))
     return ascii
 
+def caser_encrypt(string, key):
+    result = ""
+    for char in string:
+        if char.isalpha():
+            if char.islower():
+                index = (ord(char) - ord('a') + key) % 26
+                new_char = chr(ord('a') + index)
+            else:
+                index = (ord(char) - ord('A') + key) % 26
+                new_char = chr(ord('A') + index)
+            result += new_char
+        else:
+            result += char
+    return result
+
 # Configuração da interface gráfica usando tkinter
 root = tk.Tk()
 root.title('Comunicação de Dados')
@@ -108,7 +113,7 @@ root.title('Comunicação de Dados')
 label = tk.Label(root, text='Digite o texto:')
 label.pack()
 
-entry = tk.Entry(root)
+entry = tk.Entry(root, width=50)
 entry.pack()
 
 button = tk.Button(root, text='Enviar', command=send_text)
