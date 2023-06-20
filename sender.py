@@ -68,7 +68,7 @@ def create_graph(data):
 def send_text():
     text = entry.get()  # Obtém o texto digitado
 
-    caeser_text = caser_encrypt(text, 3)
+    caeser_text = caesar_encrypt(text, 3)
 
     # Transforma em ascii estendido
     ascii_text = ascii_encode(caeser_text)
@@ -91,7 +91,7 @@ def ascii_encode(string):
         ascii.append(ord(char))
     return ascii
 
-def caser_encrypt(string, key):
+def caesar_encrypt(string, key):
     result = ""
     for char in string:
         if char.isalpha():
