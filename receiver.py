@@ -97,10 +97,14 @@ def caeser_decrypt(string, key):
     return result
 
 # Recebe os dados
+
+
 data_received = receive_data()
 
 # Processa os dados
 process_data(data_received)
+
+input()
 
 # Fecha a conexão e o socket
 client_socket.close()
