@@ -44,11 +44,17 @@ def mlt3_decode(data):
 def create_graph(data):
     tuple_data = tuple(char for char in data)
     x = list(range(len(tuple_data)))
-    plt.step(x, tuple_data, where='post')
-    plt.title('Sinal recebido')
+
+    # Configura posições dos elementos no eixo y
+    y_positions = {'-': 0, '0': 1, '+': 2}
+    y = [y_positions[str(value)] for value in tuple_data]
+
+    plt.step(x, y, where='post')
+    plt.yticks([0, 1, 2], ['-', '0', '+'])
+    plt.title('Sinal codificado')
     plt.xlabel('Tempo')
     plt.ylabel('Estado')
-    plt.show()
+    plt.show(block=False)
 
 # Função para receber os dados pelo socket
 def receive_data():
