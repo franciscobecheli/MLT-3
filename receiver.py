@@ -11,40 +11,34 @@ port = 12345  # A mesma porta usada pelo servidor
 # Conecta-se ao servidor
 client_socket.connect((host, port))
 
-# Função para aplicar o princípio do algoritmo de codificação de linha inverso
-def line_decoding(data):
-    decoded_data = ''
-
-    i = 0
-    while i < len(data):
-        decoded_data += data[i]
-        i += 2  # Pula o bit zero
-
-    return decoded_data
-
 # Função para converter de binário para ASCII
 def to_ascii(binary):
     ascii_data = ''
-
-    for i in range(0, len(binary), 8):
-        char = chr(int(binary[i:i+8], 2))
+    string = ''.join(str(bit) for bit in binary)
+    for i in range(0, len(string), 8):
+        char = chr(int(string[i:i+8], 2))
         ascii_data += char
 
     return ascii_data
 
 # Função para aplicar o algoritmo de criptografia inverso
 def mlt3_decode(data):
-    decrypted_string = ""
-    previous_bit = "1"
+    mensagem = []
 
-    for bit in data:
-        if bit == previous_bit:
-            decrypted_string += "0"
-        else:
-            decrypted_string += "1"
-            previous_bit = bit
+    if data[0] != '0':
+        mensagem.append(1)
+    else:
+        mensagem.append(0)
 
-    return decrypted_string
+    for i in range(len(data)):
+        if index_in_list(data, i + 1):
+            if data[i] != data[i + 1]:
+                mensagem.append(1)
+
+            else:
+                mensagem.append(0)
+
+    return mensagem
 
 # Função para criar o gráfico
 def create_graph(data):
@@ -82,22 +76,19 @@ def index_in_list(a_list, index):
     return index < len(a_list)
 
 def caeser_decrypt(string, key):
-    decrypted = []
-
-    if string[0] != '0':
-        decrypted.append(1)
-    else:
-        decrypted.append(0)
-
-    for i in range(len(string)):
-        if index_in_list(string, i + 1):
-            if string[i] != string[i + 1]:
-                decrypted.append(1)
-
+    result = ""
+    for char in string:
+        if char.isalpha():
+            if char.islower():
+                index = (ord(char) - ord('a') + key) % 26
+                new_char = chr(ord('a') + index)
             else:
-                decrypted.append(0)
-
-    return decrypted
+                index = (ord(char) - ord('A') + key) % 26
+                new_char = chr(ord('A') + index)
+            result += new_char
+        else:
+            result += char
+    return result
 
 # Recebe os dados
 data_received = receive_data()
