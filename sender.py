@@ -3,7 +3,7 @@ import socket
 import matplotlib.pyplot as plt
 
 # Configurações de rede
-HOST = '192.168.0.3'  # Endereço IP do computador servidor
+HOST = '10.181.4.108'  # Endereço IP do computador servidor
 PORT = 12345       # Porta para a conexão
 
 # Cria um objeto de socket
@@ -58,7 +58,13 @@ def send_data(data):
 def create_graph(data):
     tuple_data = tuple(char for char in data)
     x = list(range(len(tuple_data)))
-    plt.step(x, tuple_data, where='post')
+
+    # Configura posições dos elementos no eixo y
+    y_positions = {'-': 0, '0': 1, '+': 2}
+    y = [y_positions[str(value)] for value in tuple_data]
+
+    plt.step(x, y, where='post')
+    plt.yticks([0, 1, 2], ['-', '0', '+'])
     plt.title('Sinal codificado')
     plt.xlabel('Tempo')
     plt.ylabel('Estado')
@@ -67,17 +73,25 @@ def create_graph(data):
 # Função chamada ao clicar no botão
 def send_text():
     text = entry.get()  # Obtém o texto digitado
+    text_box.insert(tk.END, "Mensagem original:" + text + "\n\n")
 
-    caeser_text = caesar_encrypt(text, 3)
+    caesar_text = caesar_encrypt(text, 3)
+    text_box.insert(tk.END, "Mensagem criptografada:" + caesar_text + "\n\n")
 
     # Transforma em ascii estendido
-    ascii_text = ascii_encode(caeser_text)
+    ascii_text = ascii_encode(caesar_text)
+    text_box.insert(tk.END, "Mensagem criptografa em ascii:")
+    print_list(ascii_text)
 
     # Converte para binário
     binary_data = to_binary(ascii_text)
+    text_box.insert(tk.END, "\n\nAscii em binário:" + binary_data + "\n\n")
 
     # Aplica a criptografia MLT-3
     mlt3_data = mlt3_encode(binary_data)
+    text_box.insert(tk.END, "Binário codificado com MLT-3:" + mlt3_data + "\n\n")
+
+    text_box.pack()
 
     # Cria o gráfico
     create_graph(mlt3_data)
@@ -106,6 +120,10 @@ def caesar_encrypt(string, key):
             result += char
     return result
 
+def print_list(lista):
+    formatted_list = ', '.join(str(item) for item in lista)  # Convert list to a formatted string with comma separator
+    text_box.insert(tk.END, formatted_list)  # Insert the formatted list into the text field
+
 # Configuração da interface gráfica usando tkinter
 root = tk.Tk()
 root.title('Comunicação de Dados')
@@ -118,6 +136,8 @@ entry.pack()
 
 button = tk.Button(root, text='Enviar', command=send_text)
 button.pack()
+
+text_box = tk.Text(root)
 
 root.mainloop()
 

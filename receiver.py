@@ -1,12 +1,13 @@
 import socket
 import matplotlib.pyplot as plt
+import tkinter as tk
 
 # Cria um objeto de socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço IP e a porta para o socket
-host = '192.168.0.3'  # Substitua pelo IP do servidor
-port = 12345  # A mesma porta usada pelo servidor
+host = '10.181.4.106'  # Substitua pelo IP do servidor
+port = 12346  # A mesma porta usada pelo servidor
 
 # Conecta-se ao servidor
 client_socket.connect((host, port))
@@ -61,22 +62,35 @@ def receive_data():
     data = client_socket.recv(1024).decode()
     return data
 
+def print_list(lista):
+    formatted_list = ', '.join(str(item) for item in lista)  # Convert list to a formatted string with comma separator
+    text_box.insert(tk.END, formatted_list)  # Insert the formatted list into the text field
+
 # Função chamada ao receber os dados
 def process_data(data):
     # Cria o gráfico
 
     create_graph(data)
 
+    text_box.insert(tk.END, "Mensagem recebida: " + data + "\n\n")
+
     # Aplica o princípio do algoritmo de codificação de linha inverso
     decoded_mlt3_data = mlt3_decode(data)
+    text_box.insert(tk.END, "Mensagem decodificada em binário: ")
+    print_list(decoded_mlt3_data)
+    text_box.insert(tk.END, "\n\n")
 
     # Aplica o algoritmo de criptografia inverso
     ascii_data = to_ascii(decoded_mlt3_data)
+    text_box.insert(tk.END, "\n\nMensagem criptografada em ascii: " + ascii_data + "\n\n")
 
     caser_decrypted_data = caeser_decrypt(ascii_data, -3)
+    text_box.insert(tk.END, "\n\nMensagem descriptografada: " + caser_decrypted_data + "\n\n")
 
     # Exibe a mensagem recebida
-    print('Mensagem recebida:', ''.join(caser_decrypted_data))
+    print('Mensagem descriptografada:', ''.join(caser_decrypted_data))
+
+    text_box.pack()
 
 def index_in_list(a_list, index):
     return index < len(a_list)
@@ -98,6 +112,9 @@ def caeser_decrypt(string, key):
 
 # Recebe os dados
 
+root = tk.Tk()
+root.title('Comunicação de Dados')
+text_box = tk.Text(root)
 
 data_received = receive_data()
 
