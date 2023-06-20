@@ -6,7 +6,7 @@ import tkinter as tk
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço IP e a porta para o socket
-host = '10.181.4.106'  # Substitua pelo IP do servidor
+host = '10.181.7.46'  # Substitua pelo IP do servidor
 port = 12346  # A mesma porta usada pelo servidor
 
 # Conecta-se ao servidor
@@ -84,7 +84,7 @@ def process_data(data):
     ascii_data = to_ascii(decoded_mlt3_data)
     text_box.insert(tk.END, "\n\nMensagem criptografada em ascii: " + ascii_data + "\n\n")
 
-    caser_decrypted_data = caeser_decrypt(ascii_data, -3)
+    caser_decrypted_data = caeser_decrypt(ascii_data, 3, 0)
     text_box.insert(tk.END, "\n\nMensagem descriptografada: " + caser_decrypted_data + "\n\n")
 
     # Exibe a mensagem recebida
@@ -95,20 +95,18 @@ def process_data(data):
 def index_in_list(a_list, index):
     return index < len(a_list)
 
-def caeser_decrypt(string, key):
-    result = ""
-    for char in string:
-        if char.isalpha():
-            if char.islower():
-                index = (ord(char) - ord('a') + key) % 26
-                new_char = chr(ord('a') + index)
-            else:
-                index = (ord(char) - ord('A') + key) % 26
-                new_char = chr(ord('A') + index)
-            result += new_char
+def caeser_decrypt(data, key, mode):
+    alphabet = 'abcdefghijklmnopqrstuvwyzàáãâéêóôõíúçABCDEFGHIJKLMNOPQRSTUVWYZÀÁÃÂÉÊÓÕÍÚÇ'
+    new_data = ''
+    for c in data:
+        index = alphabet.find(c)
+        if index == -1:
+            new_data += c
         else:
-            result += char
-    return result
+            new_index = index + key if mode == 1 else index - key
+            new_index = new_index % len(alphabet)
+            new_data += alphabet[new_index:new_index+1]
+    return new_data
 
 # Recebe os dados
 

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 # Configurações de rede
 HOST = '10.181.4.108'  # Endereço IP do computador servidor
-PORT = 12345       # Porta para a conexão
+PORT = 12346       # Porta para a conexão
 
 # Cria um objeto de socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -75,7 +75,7 @@ def send_text():
     text = entry.get()  # Obtém o texto digitado
     text_box.insert(tk.END, "Mensagem original:" + text + "\n\n")
 
-    caesar_text = caesar_encrypt(text, 3)
+    caesar_text = caesar_encrypt(text, 3, 1)
     text_box.insert(tk.END, "Mensagem criptografada:" + caesar_text + "\n\n")
 
     # Transforma em ascii estendido
@@ -105,20 +105,18 @@ def ascii_encode(string):
         ascii.append(ord(char))
     return ascii
 
-def caesar_encrypt(string, key):
-    result = ""
-    for char in string:
-        if char.isalpha():
-            if char.islower():
-                index = (ord(char) - ord('a') + key) % 26
-                new_char = chr(ord('a') + index)
-            else:
-                index = (ord(char) - ord('A') + key) % 26
-                new_char = chr(ord('A') + index)
-            result += new_char
+def caesar_encrypt(data, key, mode):
+    alphabet = 'abcdefghijklmnopqrstuvwyzàáãâéêóôõíúçABCDEFGHIJKLMNOPQRSTUVWYZÀÁÃÂÉÊÓÕÍÚÇ'
+    new_data = ''
+    for c in data:
+        index = alphabet.find(c)
+        if index == -1:
+            new_data += c
         else:
-            result += char
-    return result
+            new_index = index + key if mode == 1 else index - key
+            new_index = new_index % len(alphabet)
+            new_data += alphabet[new_index:new_index+1]
+    return new_data
 
 def print_list(lista):
     formatted_list = ', '.join(str(item) for item in lista)  # Convert list to a formatted string with comma separator
